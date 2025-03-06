@@ -1,0 +1,8 @@
+[package]
+name = "dimdev"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+shrewnit = "0.1.1"
+vexide-devices = "0.7.0"
