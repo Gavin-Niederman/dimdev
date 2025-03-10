@@ -1,13 +1,13 @@
-use shrewnit::{Length, Millimeters};
+use shrewnit::{Length, LinearVelocity, MetersPerSecond, Millimeters, Scalar};
 use vexide_devices::smart::{distance, SmartDevice, SmartDeviceType, SmartPort};
 
 pub use distance::DistanceError;
 
 /// Readings from a physical object detected by a Distance Sensor.
 #[derive(Debug, Clone, PartialEq, PartialOrd)]
-pub struct DistanceObject {
+pub struct DistanceObject<S: Scalar> {
     /// The distance of the object from the sensor.
-    pub distance: Length<u32>,
+    pub distance: Length<S>,
 
     /// A guess at the object's "relative size".
     ///
@@ -23,18 +23,18 @@ pub struct DistanceObject {
     /// [`vex::sizeType`]: https://api.vexcode.cloud/v5/search/sizeType/sizeType/enum
     pub relative_size: u32,
 
-    /// Observed velocity of the object in m/s.
-    pub velocity: f64,
+    /// Observed velocity of the object.
+    pub velocity: LinearVelocity<S>,
 
     /// Returns the confidence in the distance measurement from 0.0 to 1.0.
     pub confidence: f64,
 }
-impl From<distance::DistanceObject> for DistanceObject {
+impl<S: Scalar> From<distance::DistanceObject> for DistanceObject<S> {
     fn from(object: distance::DistanceObject) -> Self {
         Self {
-            distance: object.distance * Millimeters,
+            distance: Millimeters * S::from_u32(object.distance).unwrap(),
             relative_size: object.relative_size,
-            velocity: object.velocity,
+            velocity:  MetersPerSecond * S::from_f64(object.velocity).unwrap(),
             confidence: object.confidence,
         }
     }
@@ -109,7 +109,7 @@ impl DistanceSensor {
     ///         });
     /// }
     /// ```
-    pub fn object(&self) -> Result<Option<DistanceObject>, DistanceError> {
+    pub fn object<S: Scalar>(&self) -> Result<Option<DistanceObject<S>>, DistanceError> {
         self.inner.object().map(|object| object.map(Into::into))
     }
 

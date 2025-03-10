@@ -4,5 +4,9 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+num-traits = { version = "=0.2.16", default-features = false }
 shrewnit = "0.1.1"
 vexide-devices = "0.7.0"
+
+[features]
+dangerous_motor_tuning = ["vexide-devices/dangerous_motor_tuning"]
